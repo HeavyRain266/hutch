@@ -19,10 +19,32 @@ pub struct CalloopData {
     display: Display<Hutch>,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let log = slog::Logger::root(slog_stdlog::StdLog.fuse(), slog::o!());
+fn init_log() -> slog::Logger {
+    let terminal_drain = slog_envlogger::LogBuilder::new(
+        slog_term::CompactFormat::new(
+            slog_term::TermDecorator::new()
+                .stderr()
+                .build()
+            )
+            .build()
+            .fuse(),
+    )
+    .filter(Some("hutch"), slog::FilterLevel::Trace)
+    .filter(Some("smithay"), slog::FilterLevel::Info)
+    .build()
+    .fuse();
 
-    slog_stdlog::init().expect("Failed to initialize logger");
+    let terminal_drain = slog_async::Async::default(terminal_drain).fuse();
+
+    let log = slog::Logger::root(terminal_drain.fuse(), slog::o!());
+
+    slog_stdlog::init().expect("Could not setup log backend");
+
+    log
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let log = init_log();
 
     let mut evloop: EventLoop<CalloopData> = EventLoop::try_new()?;
 
@@ -31,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut data = CalloopData { state, display };
 
-    crate::winit::window(&mut evloop, &mut data, log)?;
+    crate::winit::window(&mut evloop, &mut data, log.clone())?;
 
     let mut args = std::env::args().skip(1);
     let flag = args.next();
@@ -40,7 +62,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let (Some("-c"), Some(cmd)) = (flag.as_deref(), arg) {
         std::process::Command::new(cmd).spawn().ok();
     } else {
-        println!("Hint: missing startup client.\nUse 'hutch -c <client> or select socket with WAYLAND_DISPLAY'");
+        slog::warn!(log, "Missing startup client.");
+        slog::info!(log, "Hint: use hutch -c <client> or WAYLAND_DISPLAY");
     }
 
     evloop.run(None, &mut data, move |_| {

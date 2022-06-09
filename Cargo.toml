@@ -5,7 +5,13 @@ edition = "2021"
 
 [dependencies]
 slog = { version = "2.1.1" }
-slog-stdlog = "4.1.0"
+slog-term = "2.8"
+slog-json = "2.4"
+slog-scope ="4.4"
+slog-async = "2.2"
+slog-stdlog = "4.1"
+slog-stream = "1.2"
+slog-envlogger = "2.2"
 
 [dependencies.smithay]
 git = "https://github.com/Smithay/smithay"
