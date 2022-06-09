@@ -69,7 +69,7 @@ impl Hutch {
         // Notify clients that we have a keyboard, for the sake of the example we assume that keyboard is always present.
         // You may want to track keyboard hot-plug in real compositor.
         seat
-            .add_keyboard(Default::default(), 100, 100, |_, _| {})
+            .add_keyboard(Default::default(), 300, 80, |_, _| {})
             .expect("Failed to register new seat.");
 
         // Notify clients that we have a pointer (mouse)
@@ -126,9 +126,6 @@ impl Hutch {
         evloop
             .handle()
             .insert_source(socket, move |client_stream, _, state| {
-                // Inside the callback, you should insert the client into the display.
-                //
-                // You may also associate some data with the client when inserting the client.
                 state.display
                     .handle()
                     .insert_client(client_stream, std::sync::Arc::new(ClientState))

@@ -1,8 +1,16 @@
 use smithay::{
     delegate_xdg_shell,
-    desktop::{Kind, Window, WindowSurfaceType},
+    desktop::{
+        Kind,
+        Window,
+        WindowSurfaceType
+    },
     reexports::wayland_server::{DisplayHandle, Resource},
-    wayland::shell::xdg::{XdgRequest, XdgShellHandler, XdgShellState},
+    wayland::shell::xdg::{
+        XdgRequest,
+        XdgShellHandler,
+        XdgShellState
+    },
 };
 
 use crate::{grabs::MoveSurfaceGrab, Hutch};
@@ -27,7 +35,7 @@ impl XdgShellHandler for Hutch {
 
                 let wl_surface = surface.wl_surface();
 
-                // TODO: touch move.
+                // TODO: touch move?
                 let pointer = seat.get_pointer().unwrap();
 
                 // Check that this surface has a click grab.
@@ -38,24 +46,24 @@ impl XdgShellHandler for Hutch {
                 let start_data = pointer.grab_start_data().unwrap();
 
                 // If the focus was for a different surface, ignore the request.
-                if start_data.focus.is_none()
-                    || !start_data
-                        .focus
-                        .as_ref()
-                        .unwrap()
-                        .0
-                        .id()
-                        .same_client_as(&wl_surface.id())
+                if start_data.focus.is_none() || !start_data.focus
+                    .as_ref()
+                    .unwrap()
+                    .0
+                    .id()
+                    .same_client_as(&wl_surface.id())
                 {
                     return;
                 }
 
-                let window = self
-                    .space
+                let window = self.space
                     .window_for_surface(wl_surface, WindowSurfaceType::TOPLEVEL)
                     .unwrap()
                     .clone();
-                let initial_window_location = self.space.window_location(&window).unwrap();
+
+                let initial_window_location = self.space
+                    .window_location(&window)
+                    .unwrap();
 
                 let grab = MoveSurfaceGrab {
                     start_data,

@@ -22,7 +22,7 @@ use slog::Logger;
 use crate::{CalloopData, Hutch};
 
 pub fn window(
-    event_loop: &mut EventLoop<CalloopData>,
+    evloop: &mut EventLoop<CalloopData>,
     data: &mut CalloopData,
     log: Logger,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -46,7 +46,9 @@ pub fn window(
         },
         log.clone(),
     );
+
     let _global = output.create_global::<Hutch>(&display.handle());
+
     output.change_current_state(
         Some(mode),
         Some(wl_output::Transform::Flipped180),
@@ -62,7 +64,8 @@ pub fn window(
     let mut full_redraw = 0u8;
 
     let timer = Timer::immediate();
-    event_loop.handle().insert_source(timer, move |_, _, data| {
+
+    evloop.handle().insert_source(timer, move |_, _, data| {
         dispatch(&mut backend, &mut winit, data, &output, &mut full_redraw).unwrap();
         TimeoutAction::ToDuration(Duration::from_millis(16))
     })?;
@@ -117,8 +120,7 @@ pub fn dispatch(
         .bind()
         .ok()
         .and_then(|_| {
-            state
-                .space
+            state.space
                 .render_output::<Gles2Renderer, SurfaceTree>(
                     &display.handle(),
                     backend.renderer(),

@@ -22,7 +22,7 @@ pub struct CalloopData {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let log = slog::Logger::root(slog_stdlog::StdLog.fuse(), slog::o!());
 
-    slog_stdlog::init().expect("Cannot initialize logger");
+    slog_stdlog::init().expect("Failed to initialize logger");
 
     let mut evloop: EventLoop<CalloopData> = EventLoop::try_new()?;
 
@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let (Some("-c"), Some(cmd)) = (flag.as_deref(), arg) {
         std::process::Command::new(cmd).spawn().ok();
     } else {
-        println!("Missing startup client");
+        println!("Hint: missing startup client.\nUse 'hutch -c <client> or select socket with WAYLAND_DISPLAY'");
     }
 
     evloop.run(None, &mut data, move |_| {

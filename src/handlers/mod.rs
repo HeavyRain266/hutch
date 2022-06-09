@@ -3,10 +3,6 @@ mod xdg_shell;
 
 use crate::Hutch;
 
-//
-// Wl Seat
-//
-
 use smithay::{
     delegate_seat,
     delegate_output,

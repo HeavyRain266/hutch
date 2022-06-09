@@ -42,8 +42,5 @@ impl AsRef<ShmState> for Hutch {
     }
 }
 
-// TODO: Finish DMA-BUF implementation
-// TODO: Handle layershell for overlays such as MangoHud?
-
 delegate_compositor!(Hutch);
 delegate_shm!(Hutch);
